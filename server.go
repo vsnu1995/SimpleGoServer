@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,10 +11,6 @@ import (
 var counter int
 var mutex = &sync.Mutex{}
 
-func echoString(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello , %q", html.EscapeString(r.URL.Path))
-}
-
 func incrementCounter(w http.ResponseWriter, r *http.Request) {
 	mutex.Lock()
 	counter++
@@ -24,13 +19,10 @@ func incrementCounter(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", echoString)
+
+	http.Handle("/", http.FileServer(http.Dir("./static/")))
 
 	http.HandleFunc("/increment", incrementCounter)
-
-	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hi")
-	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 
